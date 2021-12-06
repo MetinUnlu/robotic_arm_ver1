@@ -1,0 +1,357 @@
+<?xml version="1.0"?>
+<!-- Revolute-Revolute Manipulator -->
+<robot name="mbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+
+  <xacro:property name="width1" value="0.5" />   <!-- Beams are square in length and width -->
+  <xacro:property name="width2" value="0.16" />   <!-- Beams are square in length and width -->
+  <xacro:property name="height1" value="1.6" />   <!-- Link 1 -->
+  <xacro:property name="height2" value="1" />   <!-- Link 2 -->
+  <xacro:property name="height3" value="1" />   <!-- Link 3 -->
+  <xacro:property name="axle_offset" value="0.05" /> <!-- Space between joint and end of beam -->
+  <xacro:property name="damp" value="0.7" />    <!-- damping coefficient -->
+	<xacro:include filename="$(find robotic_arm_ver1)/urdf/materials.xacro"/> 
+	<!-- Default Inertial -->
+  <xacro:macro name="default_inertial" params="z_value i_value mass">
+    <inertial>
+      <origin xyz="0 0 ${z_value}" rpy="0 0 0"/>
+      <mass value="${mass}" />
+      <inertia ixx="${i_value}" ixy="0.0" ixz="0.0"
+               iyy="${i_value}" iyz="0.0"
+               izz="${i_value}" />
+      </inertial>
+  </xacro:macro>
+
+	<xacro:include filename="$(find robotic_arm_ver1)/urdf/mbot_arm1.gazebo"/>
+
+	<link name="world"/>
+
+	<joint name="fixed_base" type="fixed">
+		<parent link="world"/>
+		<child link="base_link"/>
+	</joint>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 ${width2/2} ${height1/2}" rpy="0 0 0"/>
+      <geometry>
+				<box size="${width1} ${width2} ${height1}"/>
+      </geometry>
+      <material name="brown"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 ${width2/2} ${height1/2}" rpy="0 0 0"/>
+      <geometry>
+				<box size="${width1} ${width2} ${height1}"/>
+      </geometry>
+    </collision>
+
+		<xacro:default_inertial z_value="${height1/2}" i_value="1.0" mass="1" />
+  </link>
+
+	<joint name="fixed_shoulder" type="fixed">
+		<parent link="base_link"/>
+		<child link="shoulder_roll_link"/>
+    <origin
+      xyz="-${width1/2} ${width2} ${height1}"
+      rpy="0.0 0.0 ${pi}" />
+	</joint>
+
+
+ <link
+    name="shoulder_roll_link">
+		<xacro:default_inertial z_value="0" i_value="1.0" mass="1" />
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robotic_arm_ver1/meshes/shoulder_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robotic_arm_ver1/meshes/shoulder_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="shoulder_pitch_link">
+		<xacro:default_inertial z_value="0" i_value="1.0" mass="1" />
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robotic_arm_ver1/meshes/shoulder_pitch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robotic_arm_ver1/meshes/shoulder_pitch_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint
+    name="shoulder_pitch_joint"
+    type="revolute">
+    <origin
+      xyz="-0.01873 -0.0067376 -0.010833"
+      rpy="1.5708 0.19956 -1.2384E-17" />
+    <parent
+      link="shoulder_roll_link" />
+    <child
+      link="shoulder_pitch_link" />
+    <axis
+      xyz="0 0 1" />
+    <dynamics damping="${damp}"/>
+    <limit effort="100.0" velocity="0.5" lower="-2.2" upper="0.94" />
+  </joint>
+
+  <link
+    name="arm_control_link">
+		<xacro:default_inertial z_value="0" i_value="1.0" mass="1" />
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robotic_arm_ver1/meshes/arm_control_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robotic_arm_ver1/meshes/arm_control_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="arm_joint"
+    type="revolute">
+    <origin
+      xyz="0.032276 0.016635 0.067"
+      rpy="-0.46455 -0.22693 0.053898" />
+    <parent
+      link="shoulder_pitch_link" />
+    <child
+      link="arm_control_link" />
+    <axis
+      xyz="0.88889 0.45813 0" />
+    <dynamics damping="${damp}"/>
+    <limit effort="100.0" velocity="0.5" lower="-3.14" upper="3.14" />
+  </joint>
+  <link
+    name="arm_roll_link">
+		<xacro:default_inertial z_value="0" i_value="1.0" mass="1" />
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robotic_arm_ver1/meshes/arm_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robotic_arm_ver1/meshes/arm_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="arm_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.20611 -0.11794 0.062959"
+      rpy="-2.6706 -0.46974 -2.3045" />
+    <parent
+      link="arm_control_link" />
+    <child
+      link="arm_roll_link" />
+    <axis
+      xyz="0.43684 -0.84758 0.30129" />
+    <dynamics damping="${damp}"/>
+    <limit effort="100.0" velocity="0.5" lower="-3.14" upper="3.14" />
+  </joint>
+  <link
+    name="forearm_link">
+		<xacro:default_inertial z_value="0" i_value="1.0" mass="1" />
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robotic_arm_ver1/meshes/forearm_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robotic_arm_ver1/meshes/forearm_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="forearm_joint"
+    type="revolute">
+    <origin
+      xyz="0.050616 -0.099519 0.030072"
+      rpy="0.5494 0.26255 0.0025907" />
+    <parent
+      link="arm_roll_link" />
+    <child
+      link="forearm_link" />
+    <axis
+      xyz="-0.89903 -0.42261 0.11464" />
+    <dynamics damping="${damp}"/>
+    <limit effort="100.0" velocity="0.5" lower="-1.72" upper="2.24" />
+  </joint>
+  <link
+    name="arm_link">
+		<xacro:default_inertial z_value="0" i_value="1.0" mass="1" />
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robotic_arm_ver1/meshes/arm_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robotic_arm_ver1/meshes/arm_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="hand_joint"
+    type="revolute">
+    <origin
+      xyz="0.038253 -0.15785 0.034392"
+      rpy="-2.2518 0.021565 -2.5082" />
+    <parent
+      link="forearm_link" />
+    <child
+      link="arm_link" />
+    <axis
+      xyz="0.1641 -0.75714 0.6323" />
+    <dynamics damping="${damp}"/>
+    <limit effort="100.0" velocity="0.5" lower="-3.14" upper="3.14" />
+  </joint>
+
+ 	<transmission name="transmission1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="shoulder_pitch_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+ 	<transmission name="transmission2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="arm_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor2">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+ 	<transmission name="transmission3">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="arm_roll_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor3">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+ 	<transmission name="transmission4">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="forearm_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor4">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+ 	<transmission name="transmission5">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="hand_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor5">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+</robot>
