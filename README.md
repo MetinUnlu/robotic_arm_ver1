@@ -2,6 +2,8 @@
 
 Personal robotic arm work made for fun,
 
+Working forward study of the arm is done following "Introduction to Robotics. Mechanics and Control. Third Edition. John J. Craig.", all the explained topics until inverse kinematics rewritten in python from scratch including forward kinematics, multi-axis rotation matrixes, transformation matrixes with rotation matrix and point matrix, euler angle to rotational matrix conversions and transformation matrix for multiple joint using DH parameters.
+
 Kinematic controllers will be added in future. Inverse kinematics with lookup-tables and Newton raphson will be used. The tables will be created automatically with given DH parameters.
 
 
