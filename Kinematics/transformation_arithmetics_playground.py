@@ -148,20 +148,9 @@ rotation_matrix=np.array([
 ab_transformation=inverse_given_matrix(transformation_matrix)
 #print(ab_transformation)
 bc_transformation=transformation(rotation(22.5,"z"),bc_translation)
-#print("The transformation matrix is:")
-#print(bc_transformation)
+print("The transformation matrix is:")
+print(bc_transformation)
 ac_transformation=np.dot(ab_transformation,bc_transformation)
 #print(ac_transformation)
-
-
-gravity=9.80665
-
-g=np.array([0,0,gravity])
-
-
-rotation_matrix=euler_to_rotation(0,0,0)
-print(rotation_matrix)
-gravity_matrix=np.dot(rotation_matrix,g)
-print(gravity_matrix)
 
 
